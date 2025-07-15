@@ -10,11 +10,11 @@ class VocabAgent(AgentBase):
     继承自 AgentBase 基类。
     """
     def __init__(self, session_id=None):
-        # 调用父类的构造函数，初始化代理名称、提示文件路径以及可选的会话 ID
+        # 加载工业术语提示文件（新增）
         super().__init__(
-            name="vocab_study",  # 定义代理的名称
-            prompt_file="prompts/vocab_study_prompt.txt",  # 提示词文件的路径
-            session_id=session_id  # 会话唯一标识符，默认为 None
+            name="industrial_terms",
+            prompt_file="prompts/industrial_terms_prompt.txt",  # 工业术语学习提示
+            session_id=session_id
         )
 
     def restart_session(self, session_id=None):
@@ -40,3 +40,5 @@ class VocabAgent(AgentBase):
 
         # 返回清空后的会话历史记录
         return history
+
+

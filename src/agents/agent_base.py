@@ -5,6 +5,7 @@ from langchain_ollama.chat_models import ChatOllama  # 导入 ChatOllama 模型
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder  # 导入提示模板相关类
 from langchain_core.messages import HumanMessage  # 导入消息类
 from langchain_core.runnables.history import RunnableWithMessageHistory  # 导入带有消息历史的可运行类
+from langchain_openai import ChatOpenAI
 
 from .session_history import get_session_history  # 导入会话历史相关方法
 from utils.logger import LOG  # 导入日志工具
@@ -55,11 +56,18 @@ class AgentBase(ABC):
         ])
 
         # 初始化 ChatOllama 模型，配置参数
-        self.chatbot = system_prompt | ChatOllama(
-            model="llama3.1:8b-instruct-q8_0",  # 使用的模型名称
-            max_tokens=8192,  # 最大生成的 token 数
-            temperature=0.8,  # 随机性配置
+        # self.chatbot = system_prompt | ChatOllama(
+        #     model="llama3.1:8b-instruct-q8_0",  # 使用的模型名称
+        #     max_tokens=8192,  # 最大生成的 token 数
+        #     temperature=0.8,  # 随机性配置
+        # )
+        self.chatbot = system_prompt | ChatOpenAI(
+            model="DeepSeek-R1",  # 使用的模型名称
+            api_key="5bf4e82c-62c3-412a-a122-e8d34caf7a54",
+            base_url="http://10.100.1.11:30992/v1/"
+
         )
+
 
         # 将聊天机器人与消息历史记录关联
         self.chatbot_with_history = RunnableWithMessageHistory(self.chatbot, get_session_history)
@@ -75,13 +83,17 @@ class AgentBase(ABC):
         返回:
             str: AI 生成的回复
         """
-        if session_id is None:
-            session_id = self.session_id
+        try:
+            if session_id is None:
+                session_id = self.session_id
 
-        response = self.chatbot_with_history.invoke(
-            [HumanMessage(content=user_input)],  # 将用户输入封装为 HumanMessage
-            {"configurable": {"session_id": session_id}},  # 传入配置，包括会话ID
-        )
+            response = self.chatbot_with_history.invoke(
+                [HumanMessage(content=user_input)],
+                {"configurable": {"session_id": session_id}},
+            )
 
-        LOG.debug(f"[ChatBot][{self.name}] {response.content}")  # 记录调试日志
-        return response.content  # 返回生成的回复内容
+            LOG.debug(f"[ChatBot][{self.name}] {response.content}")
+            return response.content
+        except Exception as e:
+            LOG.error(f"LLM response error: {str(e)}")
+            return "抱歉，当前服务不可用，请稍后再试。"  # Fallback message

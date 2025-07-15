@@ -30,10 +30,14 @@ def restart_vocab_study_chatbot():
     _next_round = "Let's do it"
     bot_message = vocab_agent.chat_with_history(_next_round)
 
-    # 返回一个带有初始消息和机器回复的聊天机器人界面
+    # Return chatbot with "messages" format (user + assistant messages)
     return gr.Chatbot(
-        value=[(_next_round, bot_message)],
-        height=800,  # 设置聊天机器人组件的高度
+        value=[
+            {"role": "user", "content": _next_round},  # User message
+            {"role": "assistant", "content": bot_message}  # Assistant response
+        ],
+        height=800,
+        type="messages"  # Explicitly set to messages format
     )
 
 # 处理用户输入的单词学习消息，并与词汇代理互动获取机器人的响应
@@ -45,17 +49,20 @@ def handle_vocab(user_input, chat_history):
 # 创建词汇学习的 Tab 界面
 def create_vocab_tab():
     # 创建一个 Tab，标题为“单词”
-    with gr.Tab("单词"):
-        gr.Markdown("## 闯关背单词")  # 添加 Markdown 标题
+    with gr.Tab("电解铝专用术语"):
+        gr.Markdown("## 闯关学习电解铝专用术语")  # 添加 Markdown 标题
 
         # 显示从文件中获取的页面描述
         gr.Markdown(get_page_desc(feature))
 
-        # 初始化一个聊天机器人组件，设置占位符文本和高度
-        vocab_study_chatbot = gr.Chatbot(
-            placeholder="<strong>你的英语私教 DjangoPeng</strong><br><br>开始学习新单词吧！",
-            height=800,
-        )
+        # 原词汇学习标题 → 调整为工业术语学习
+        with gr.Tab("工业术语"):
+            gr.Markdown("## 工业术语学习")  # 标题调整
+            vocab_study_chatbot = gr.Chatbot(
+                placeholder="<strong>你的电解术语培训助手 小智</strong><br><br>开始学习工业术语吧！",
+                height=800,
+                type="messages"
+            )
 
         # 创建一个按钮，用于重置词汇学习状态，值为“下一关”
         restart_btn = gr.ClearButton(value="下一关")
@@ -71,8 +78,8 @@ def create_vocab_tab():
         gr.ChatInterface(
             fn=handle_vocab,  # 处理用户输入的函数
             chatbot=vocab_study_chatbot,  # 关联的聊天机器人组件
-            retry_btn=None,  # 不显示重试按钮
-            undo_btn=None,  # 不显示撤销按钮
-            clear_btn=None,  # 学习下一批新单词按钮
+            #retry_btn=None,  # 不显示重试按钮
+            #undo_btn=None,  # 不显示撤销按钮
+            #clear_btn=None,  # 学习下一批新单词按钮
             submit_btn="发送",  # 发送按钮的文本
         )

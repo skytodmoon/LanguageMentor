@@ -1,7 +1,13 @@
+# 核心大语言模型交互库（注意：PyPI 包名使用短横线）
 langchain==0.2.16
-langchain_core==0.2.41
-langchain_community==0.2.17
-langchain_openai==0.1.25
-langchain_ollama==0.1.3
+langchain-core==0.2.41
+langchain-community==0.2.17
+langchain-openai==0.1.25
+langchain-ollama==0.1.3
+
+# 前端交互框架（更新至用户提供的 5.37.0 版本）
+gradio==5.37.0
+
+# 日志工具
 gradio==4.43.0
 loguru==0.7.2
